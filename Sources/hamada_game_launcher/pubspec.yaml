@@ -1,0 +1,33 @@
+name: game_launcher
+description: A Flutter game launcher with a gaming theme and video splash screen.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  video_player: ^2.5.0
+  shared_preferences: ^2.5.2
+  fluttertoast: ^8.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/HGL.mp4
+    - assets/scripts/root_balanced_perf.sh
+    - assets/scripts/root_perf.sh
+    - assets/scripts/non_root_balanced_perf.sh
+    - assets/scripts/non_root_perf.sh
+
+  fonts:
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron-Regular.ttf
