@@ -1,5 +1,6 @@
-https://github.com/user-attachments/assets/c2d2034f-8143-402d-86c2-f687dd5dcb06
-Uploading HGL 720p HEVC.mp4…
+![HGL Banner](https://github.com/user-attachments/assets/7040067f-9533-4e58-b2b6-8ef4e5ee6311)
 
 Launcher for both root &amp; non root devices
 
+Supported SoC for Root Mode: Snapdragon, Mediatek, UniSoc, Exynos
+Supported SoC for Non-Root Mode: Any SoC
