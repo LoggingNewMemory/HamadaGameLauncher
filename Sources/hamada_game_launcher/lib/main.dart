@@ -683,8 +683,8 @@ class _GameListScreenState extends State<GameListScreen> {
                           SizedBox(height: 16),
                           Text(
                             _isRoot
-                                ? "Root Mode. All features are available."
-                                : "Non-Root Mode. Features are limited.",
+                                ? "Advanced Performance Script Available."
+                                : "Basic Performance Script Available.",
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white70,
@@ -831,27 +831,186 @@ class GameScreen extends StatefulWidget {
   _GameScreenState createState() => _GameScreenState();
 }
 
-// Updated _GameScreenState: Removed balanced-script execution in dispose()
-// and increased the threshold to 15 seconds before triggering the balanced script.
+// Updated _GameScreenState: The performance script is now executed when the user presses "Launch Game".
+// The button text changes to "Optimizing" while the script is being executed.
 class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   static const platform =
       MethodChannel('com.example.hamada_game_launcher/channel');
   bool _scriptsInitialized = false;
   bool _launchedGame = false;
   bool _balancedScriptExecuted = false;
+  bool _isOptimizing = false;
   DateTime? _gameStartTime;
+
+  final List<String> _goodLuckMessages = [
+    "Press start to play!",
+    "Game on, warrior!",
+    "Power up and conquer!",
+    "Keep calm and press button!",
+    "Victory awaits, jump in!",
+    "One life, one chance!",
+    "No respawn needed!",
+    "Epic moves only!",
+    "Combo attack activated!",
+    "Level up your game!",
+    "Score high, aim higher!",
+    "Challenge accepted!",
+    "Dare to defeat!",
+    "Your quest begins now!",
+    "Push your limits!",
+    "Master the controls!",
+    "Unleash your power!",
+    "Speed up, gear up!",
+    "Fight like a legend!",
+    "Game face on!",
+    "In the zone, dominate!",
+    "Crush the competition!",
+    "No cheat codes needed!",
+    "Precision is key!",
+    "Your adventure awaits!",
+    "Hone your skills!",
+    "Ready, set, game!",
+    "Strategize and conquer!",
+    "Climb the leaderboard!",
+    "In this game, you're king!",
+    "Run, jump, defeat!",
+    "Defeat is not an option!",
+    "Challenge the impossible!",
+    "Play to win!",
+    "Conquer with courage!",
+    "Game over? Never!",
+    "Victory through skill!",
+    "Unstoppable force!",
+    "No boundaries, just game!",
+    "Thrill in every level!",
+    "Adventure calls, answer it!",
+    "Be legendary!",
+    "Never back down!",
+    "Beat the boss!",
+    "Push past limits!",
+    "Stay sharp, play smart!",
+    "The game is yours!",
+    "Victory at every turn!",
+    "Aim true, win big!",
+    "Gear up for glory!",
+    "Step into the arena!",
+    "Unyielding spirit!",
+    "Challenge the norm!",
+    "Thrill-seeker, play on!",
+    "Press on, never quit!",
+    "In it to win it!",
+    "Raise the bar!",
+    "Master every level!",
+    "Go full throttle!",
+    "Your journey begins here!",
+    "Feel the rush!",
+    "Score a critical hit!",
+    "Game like a pro!",
+    "Seize the joystick!",
+    "Stay ahead of the game!",
+    "No game, no glory!",
+    "Awaken the hero!",
+    "Your skills speak volumes!",
+    "Fight for every pixel!",
+    "Make every move count!",
+    "Embrace the challenge!",
+    "Ready for battle!",
+    "Hero mode activated!",
+    "New high score, here we come!",
+    "It's all about the game!",
+    "Keep your eyes on the prize!",
+    "Blast through barriers!",
+    "Embody the champion!",
+    "Play with passion!",
+    "Push beyond limits!",
+    "Victory is just a play away!",
+    "Unleash fury on the field!",
+    "Stay relentless!",
+    "Command the game!",
+    "No rules, just game!",
+    "Bring on the challenge!",
+    "Defy expectations!",
+    "Conquer with heart!",
+    "Turn the game around!",
+    "Embrace every challenge!",
+    "Adventure is out there!",
+    "Level the playing field!",
+    "Pursue perfection!",
+    "Game hard, win harder!",
+    "Win with honor!",
+    "Charge into action!",
+    "Rule the realm!",
+    "Strike with precision!",
+    "Outplay, outlast, outwin!",
+    "It's your time to shine!",
+    "Dominate the digital realm!",
+    "Battle, win, repeat!",
+    "No fear, just game!",
+    "Embody the warrior spirit!",
+    "Game on, legends!",
+    "Rise above the rest!",
+    "Unravel the challenge!",
+    "Clash with honor!",
+    "Master the game mechanics!",
+    "Press on, conquer all!",
+    "Unlock your potential!",
+    "Keep your cool!",
+    "Challenge your limits!",
+    "Every play counts!",
+    "The game never ends!",
+    "Hustle, play, win!",
+    "Strive for greatness!",
+    "Rule the leaderboard!",
+    "Make your mark!",
+    "Achieve the impossible!",
+    "Score that win!",
+    "Every victory matters!",
+    "Game up, level up!",
+    "Every level, a new chance!",
+    "Claim your crown!",
+    "The digital arena awaits!",
+    "No mission too hard!",
+    "Step up your game!",
+    "Press pause, then win!",
+    "Keep the streak alive!",
+    "Surpass your limits!",
+    "Play like a champion!",
+    "Every second counts!",
+    "Live the game!",
+    "Never miss a beat!",
+    "Unlock epic moments!",
+    "Your legend starts now!",
+    "Let the game begin!",
+    "Dominate with finesse!",
+    "Chase the high score!",
+    "Game with heart!",
+    "Edge out the competition!",
+    "Sprint to success!",
+    "Live the adventure!",
+    "Onwards to glory!",
+    "Press play, feel the adrenaline!",
+    "Every battle counts!",
+    "Write your own legend!",
+    "Game on, let's roll!",
+    "Charge forward with courage!",
+    "Ambatukammm... Ooouuuuu...",
+    "Aduh Kang... Kakangkuh...",
+  ];
+  String _goodLuckMessage = "";
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeAndRunScript();
+    // Select one random message from the list on initialization.
+    _goodLuckMessage =
+        _goodLuckMessages[math.Random().nextInt(_goodLuckMessages.length)];
+    // Note: We no longer execute the perf script on init; it will be executed when "Launch Game" is pressed.
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Removed execution of balanced script here to prevent premature execution.
     super.dispose();
   }
 
@@ -883,13 +1042,6 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         }
       }
     }
-  }
-
-  Future<void> _initializeAndRunScript() async {
-    if (!_scriptsInitialized) {
-      await _extractScriptsIfNeeded();
-    }
-    await _executeScript(widget.isRoot ? "root_perf.sh" : "non_root_perf.sh");
   }
 
   Future<void> _extractScriptsIfNeeded() async {
@@ -936,6 +1088,15 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   Future<void> _launchSelectedGame() async {
     try {
+      setState(() {
+        _isOptimizing = true;
+      });
+      // Execute performance script when "Launch Game" is pressed.
+      if (!_scriptsInitialized) {
+        await _extractScriptsIfNeeded();
+      }
+      await _executeScript(widget.isRoot ? "root_perf.sh" : "non_root_perf.sh");
+
       _launchedGame = true;
       _balancedScriptExecuted = false;
 
@@ -981,6 +1142,9 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
           msg: "Error launching game: ${e.message}",
           backgroundColor: Colors.red.withOpacity(0.8),
           textColor: Colors.white);
+      setState(() {
+        _isOptimizing = false;
+      });
     }
   }
 
@@ -1015,7 +1179,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.7),
+                          color: const Color.fromARGB(255, 203, 161, 234)
+                              .withOpacity(0.7),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
@@ -1042,12 +1207,16 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                   SizedBox(height: 36),
                   ElevatedButton.icon(
                     icon: Icon(Icons.play_arrow),
-                    label: Text("Launch Game", style: TextStyle(fontSize: 18)),
+                    label: Text(
+                      _isOptimizing ? "Optimizing" : "Launch Game",
+                      style: TextStyle(fontSize: 18),
+                    ),
                     style: ElevatedButton.styleFrom(
                       padding:
                           EdgeInsets.symmetric(horizontal: 36, vertical: 16),
                     ),
-                    onPressed: _launchSelectedGame,
+                    onPressed:
+                        _isOptimizing ? null : () => _launchSelectedGame(),
                   ),
                 ],
               ),
@@ -1108,10 +1277,9 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                             ],
                           ),
                           SizedBox(height: 16),
+                          // Display the random "Good Luck" message for both modes
                           Text(
-                            widget.isRoot
-                                ? "Advanced features are available with root access."
-                                : "Limited features available in standard mode.",
+                            _goodLuckMessage,
                             style:
                                 TextStyle(fontSize: 14, color: Colors.white70),
                           ),

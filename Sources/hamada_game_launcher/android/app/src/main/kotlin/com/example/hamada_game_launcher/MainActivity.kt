@@ -40,6 +40,16 @@ class MainActivity : FlutterActivity() {
     private val EXIT_THRESHOLD = 1 
     private val CHECK_INTERVAL: Long = 1000
     private val TAG = "HamadaGameLauncher"
+    
+    // List of whitelisted packages that should not trigger game exit
+    private val whitelistedPackages = listOf(
+        "com.google.android.play.games",
+        "com.android.vending",
+        "com.google.android.gms",
+        "com.google.android.gsf.login",
+        "com.google.android.gsf",
+        "com.google.android.apps.auth"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,10 +157,27 @@ class MainActivity : FlutterActivity() {
                         result.error("ERROR", "Script name is null", null)
                     }
                 }
+                "addWhitelistedPackage" -> {
+                    val packageName = call.argument<String>("packageName")
+                    if (packageName != null) {
+                        addToWhitelist(packageName)
+                        result.success(true)
+                    } else {
+                        result.error("ERROR", "Package name is null", null)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }
         Log.d(TAG, "Method channel setup complete")
+    }
+
+    // Add a package to the whitelist
+    private fun addToWhitelist(packageName: String) {
+        if (!whitelistedPackages.contains(packageName)) {
+            (whitelistedPackages as MutableList).add(packageName)
+            Log.d(TAG, "Added $packageName to whitelist")
+        }
     }
 
     override fun onResume() {
@@ -187,9 +214,13 @@ class MainActivity : FlutterActivity() {
 
                 val foregroundPackage = getForegroundAppPackageName()
                 Log.d(TAG, "Foreground package: $foregroundPackage, current game: $currentGamePackage")
-                if (currentGamePackage.isNotEmpty() && currentGamePackage != foregroundPackage) {
+                
+                // Check if the foreground app is either the game or a whitelisted app
+                if (foregroundPackage != null && 
+                    foregroundPackage != currentGamePackage && 
+                    !whitelistedPackages.contains(foregroundPackage)) {
                     exitCounter++
-                    Log.d(TAG, "Game not detected. Exit counter: $exitCounter")
+                    Log.d(TAG, "Non-whitelisted app in foreground. Exit counter: $exitCounter")
                     if (exitCounter >= EXIT_THRESHOLD) {
                         isMonitoring = false
                         Handler(Looper.getMainLooper()).post {
@@ -198,7 +229,9 @@ class MainActivity : FlutterActivity() {
                         return
                     }
                 } else {
+                    // Either the game is in foreground or a whitelisted app is showing
                     exitCounter = 0
+                    Log.d(TAG, "Game or whitelisted app detected, continuing monitoring")
                 }
                 handler.postDelayed(this, CHECK_INTERVAL)
             }
