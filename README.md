@@ -2,5 +2,5 @@
 
 A Game Launcher for both root &amp; non root devices
 
-Supported SoC for Root Mode: Snapdragon, Mediatek, UniSoc, Exynos
+Supported SoC for Root Mode: Snapdragon, Mediatek, UniSoc, Exynos <br />
 Supported SoC for Non-Root Mode: Any SoC
