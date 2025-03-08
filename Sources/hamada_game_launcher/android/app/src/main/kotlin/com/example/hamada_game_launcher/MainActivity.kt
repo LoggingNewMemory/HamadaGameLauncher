@@ -404,6 +404,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // Fixed executeScript function:
     private fun executeScript(scriptName: String, result: MethodChannel.Result) {
         thread {
             try {
@@ -415,10 +416,11 @@ class MainActivity : FlutterActivity() {
                 }
                 Log.d(TAG, "Executing script: $scriptName")
                 val isRoot = isRooted()
+                // For non-root, add "-c" flag to properly execute the command.
                 val process = if (isRoot) {
                     Runtime.getRuntime().exec(arrayOf("su", "-c", "sh ${scriptFile.absolutePath}"))
                 } else {
-                    Runtime.getRuntime().exec(arrayOf("sh", scriptFile.absolutePath))
+                    Runtime.getRuntime().exec(arrayOf("sh", "-c", scriptFile.absolutePath))
                 }
                 val exitValue = process.waitFor()
                 Log.d(TAG, "Script $scriptName executed with exit value: $exitValue")

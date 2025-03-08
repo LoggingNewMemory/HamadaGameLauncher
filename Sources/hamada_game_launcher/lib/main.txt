@@ -930,69 +930,6 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     "No rules, just game!",
     "Bring on the challenge!",
     "Defy expectations!",
-    "Conquer with heart!",
-    "Turn the game around!",
-    "Embrace every challenge!",
-    "Adventure is out there!",
-    "Level the playing field!",
-    "Pursue perfection!",
-    "Game hard, win harder!",
-    "Win with honor!",
-    "Charge into action!",
-    "Rule the realm!",
-    "Strike with precision!",
-    "Outplay, outlast, outwin!",
-    "It's your time to shine!",
-    "Dominate the digital realm!",
-    "Battle, win, repeat!",
-    "No fear, just game!",
-    "Embody the warrior spirit!",
-    "Game on, legends!",
-    "Rise above the rest!",
-    "Unravel the challenge!",
-    "Clash with honor!",
-    "Master the game mechanics!",
-    "Press on, conquer all!",
-    "Unlock your potential!",
-    "Keep your cool!",
-    "Challenge your limits!",
-    "Every play counts!",
-    "The game never ends!",
-    "Hustle, play, win!",
-    "Strive for greatness!",
-    "Rule the leaderboard!",
-    "Make your mark!",
-    "Achieve the impossible!",
-    "Score that win!",
-    "Every victory matters!",
-    "Game up, level up!",
-    "Every level, a new chance!",
-    "Claim your crown!",
-    "The digital arena awaits!",
-    "No mission too hard!",
-    "Step up your game!",
-    "Press pause, then win!",
-    "Keep the streak alive!",
-    "Surpass your limits!",
-    "Play like a champion!",
-    "Every second counts!",
-    "Live the game!",
-    "Never miss a beat!",
-    "Unlock epic moments!",
-    "Your legend starts now!",
-    "Let the game begin!",
-    "Dominate with finesse!",
-    "Chase the high score!",
-    "Game with heart!",
-    "Edge out the competition!",
-    "Sprint to success!",
-    "Live the adventure!",
-    "Onwards to glory!",
-    "Press play, feel the adrenaline!",
-    "Every battle counts!",
-    "Write your own legend!",
-    "Game on, let's roll!",
-    "Charge forward with courage!",
     "Ambatukammm... Ooouuuuu...",
     "Aduh Kang... Kakangkuh...",
   ];
@@ -1014,13 +951,12 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  // Modified didChangeAppLifecycleState:
+  // We no longer update _gameStartTime on pause so that the launch time is preserved.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused && _launchedGame) {
-      // App paused – likely switched to the game
-      _gameStartTime = DateTime.now();
-    } else if (state == AppLifecycleState.resumed && _launchedGame) {
-      // App resumed – if user returns from game, check duration
+    if (state == AppLifecycleState.resumed && _launchedGame) {
+      // App resumed – if user returns from game, check duration since game launch.
       if (_gameStartTime != null) {
         final gamePlayDuration = DateTime.now().difference(_gameStartTime!);
         // Increase threshold to 15 seconds before running the balanced script
@@ -1114,7 +1050,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       await platform
           .invokeMethod('launchApp', {"packageName": widget.packageName});
 
-      // Start tracking the launch time
+      // Start tracking the launch time only once
       _gameStartTime = DateTime.now();
 
       // Register a callback for game exit notification from native side
@@ -1179,7 +1115,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color.fromARGB(203, 161, 234, 255)
+                          color: const Color.fromARGB(255, 203, 161, 234)
                               .withOpacity(0.7),
                           blurRadius: 15,
                           spreadRadius: 2,
